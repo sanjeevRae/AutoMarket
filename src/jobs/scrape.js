@@ -22,13 +22,20 @@ async function main() {
   for (const target of targets) {
     console.log(`Scanning ${target.name}: ${target.marketplaceUrl}`);
 
-    const rawListings =
-      env.SCRAPE_SOURCE === "mock"
-        ? await scrapeMockMarketplace()
-        : await scrapeFacebookMarketplace({
-            cityUrl: target.marketplaceUrl,
-            maxItems: env.SCRAPE_MAX_ITEMS
-          });
+    let rawListings = [];
+
+    try {
+      rawListings =
+        env.SCRAPE_SOURCE === "mock"
+          ? await scrapeMockMarketplace()
+          : await scrapeFacebookMarketplace({
+              cityUrl: target.marketplaceUrl,
+              maxItems: env.SCRAPE_MAX_ITEMS
+            });
+    } catch (error) {
+      console.warn(`[scrape] target failed: ${target.name}: ${error.message}`);
+      continue;
+    }
 
     console.log(`Fetched ${rawListings.length} raw listings from ${env.SCRAPE_SOURCE}.`);
 
@@ -70,18 +77,22 @@ async function main() {
         continue;
       }
 
-      if (await listingExists(listing.sourceId)) continue;
+      try {
+        if (await listingExists(listing.sourceId)) continue;
 
-      const media = await uploadListingImage(listing.originalImageUrl, listing.sourceId);
-      const finalListing = {
-        ...listing,
-        imageUrl: media.imageUrl,
-        cloudinaryPublicId: media.publicId
-      };
+        const media = await uploadListingImage(listing.originalImageUrl, listing.sourceId);
+        const finalListing = {
+          ...listing,
+          imageUrl: media.imageUrl,
+          cloudinaryPublicId: media.publicId
+        };
 
-      await saveListing(finalListing);
-      await sendListingNotification(finalListing);
-      saved += 1;
+        await saveListing(finalListing);
+        await sendListingNotification(finalListing);
+        saved += 1;
+      } catch (error) {
+        console.warn(`[listing] failed ${listing.sourceId}: ${error.message}`);
+      }
     }
   }
 

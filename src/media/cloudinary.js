@@ -25,18 +25,23 @@ export async function uploadListingImage(imageUrl, sourceId) {
 
   if (!imageUrl) return { imageUrl: null, publicId: null };
 
-  const result = await cloudinary.uploader.upload(imageUrl, {
-    folder: "automarket/listings",
-    public_id: sourceId,
-    overwrite: true,
-    resource_type: "image",
-    transformation: [{ quality: "auto", fetch_format: "auto", width: 900, crop: "limit" }]
-  });
+  try {
+    const result = await cloudinary.uploader.upload(imageUrl, {
+      folder: "automarket/listings",
+      public_id: sourceId,
+      overwrite: true,
+      resource_type: "image",
+      transformation: [{ quality: "auto", fetch_format: "auto", width: 900, crop: "limit" }]
+    });
 
-  return {
-    imageUrl: result.secure_url,
-    publicId: result.public_id
-  };
+    return {
+      imageUrl: result.secure_url,
+      publicId: result.public_id
+    };
+  } catch (error) {
+    console.warn(`[cloudinary] image upload failed for ${sourceId}: ${error.message}`);
+    return { imageUrl, publicId: null };
+  }
 }
 
 export async function deleteCloudinaryAsset(publicId) {

@@ -14,7 +14,7 @@ export function getFirebaseApp() {
     credential: admin.credential.cert({
       projectId: env.FIREBASE_PROJECT_ID,
       clientEmail: env.FIREBASE_CLIENT_EMAIL,
-      privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+      privateKey: normalizePrivateKey(env.FIREBASE_PRIVATE_KEY)
     })
   });
 
@@ -27,4 +27,12 @@ export function getDb() {
 
 export function getMessaging() {
   return getFirebaseApp().messaging();
+}
+
+function normalizePrivateKey(value) {
+  return value
+    .replace(/^"|"$/g, "")
+    .replace(/^'|'$/g, "")
+    .replace(/\\n/g, "\n")
+    .trim();
 }
