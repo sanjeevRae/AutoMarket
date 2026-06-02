@@ -1,0 +1,27 @@
+{
+  "name": "automarket-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend automation for AutoMarket Marketplace deal alerts.",
+  "type": "module",
+  "scripts": {
+    "scrape": "node src/jobs/scrape.js",
+    "scrape:mock": "node src/jobs/scrapeMock.js",
+    "cleanup": "node src/jobs/cleanup.js",
+    "validate": "node src/jobs/validateConfig.js",
+    "format": "prettier --write ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cloudinary": "^2.5.1",
+    "dotenv": "^16.4.7",
+    "firebase-admin": "^13.0.2",
+    "playwright": "^1.49.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}

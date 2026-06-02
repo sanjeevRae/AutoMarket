@@ -1,0 +1,41 @@
+name: Scrape Marketplace
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: automarket-scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    env:
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      MARKETPLACE_CITY_URL: ${{ secrets.MARKETPLACE_CITY_URL }}
+      MARKETPLACE_URLS: ${{ secrets.MARKETPLACE_URLS }}
+      FCM_TOKENS: ${{ secrets.FCM_TOKENS }}
+      SCRAPE_HEADLESS: "true"
+      SCRAPE_MAX_ITEMS: "40"
+      SCRAPE_DRY_RUN: "false"
+      SCRAPE_DEBUG: "false"
+      RETENTION_DAYS: "30"
+      MARKETPLACE_MAX_TARGETS: "18"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run validate
+      - run: npm run scrape
