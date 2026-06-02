@@ -13,6 +13,10 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     timeout-minutes: 14
+    strategy:
+      fail-fast: false
+      matrix:
+        target_offset: [0, 6, 12]
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -29,7 +33,8 @@ jobs:
       SCRAPE_DRY_RUN: "false"
       SCRAPE_DEBUG: "false"
       RETENTION_DAYS: "30"
-      MARKETPLACE_MAX_TARGETS: "18"
+      MARKETPLACE_MAX_TARGETS: "6"
+      MARKETPLACE_TARGET_OFFSET: ${{ matrix.target_offset }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

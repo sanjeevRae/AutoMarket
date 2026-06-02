@@ -24,7 +24,7 @@ function getMarketplaceTargets() {
         name: `Custom Nepal target ${index + 1}`,
         marketplaceUrl: url
       }))
-      .slice(0, env.MARKETPLACE_MAX_TARGETS);
+      .slice(env.MARKETPLACE_TARGET_OFFSET, env.MARKETPLACE_TARGET_OFFSET + env.MARKETPLACE_MAX_TARGETS);
   }
 
   const generatedTargets = [];
@@ -39,7 +39,7 @@ function getMarketplaceTargets() {
     }
   }
 
-  return generatedTargets.slice(0, env.MARKETPLACE_MAX_TARGETS);
+  return generatedTargets.slice(env.MARKETPLACE_TARGET_OFFSET, env.MARKETPLACE_TARGET_OFFSET + env.MARKETPLACE_MAX_TARGETS);
 }
 
 export const filters = {

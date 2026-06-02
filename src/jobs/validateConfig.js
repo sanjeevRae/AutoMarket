@@ -5,6 +5,7 @@ const publicConfig = {
   marketplaceCityUrl: env.MARKETPLACE_CITY_URL,
   marketplaceUrls: env.MARKETPLACE_URLS ? env.MARKETPLACE_URLS.split(";").filter(Boolean).length : 0,
   marketplaceMaxTargets: env.MARKETPLACE_MAX_TARGETS,
+  marketplaceTargetOffset: env.MARKETPLACE_TARGET_OFFSET,
   scrapeHeadless: env.SCRAPE_HEADLESS,
   scrapeMaxItems: env.SCRAPE_MAX_ITEMS,
   scrapeDryRun: env.SCRAPE_DRY_RUN,

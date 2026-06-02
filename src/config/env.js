@@ -17,7 +17,11 @@ const schema = z.object({
   MARKETPLACE_URLS: z.preprocess(emptyToUndefined, z.string().optional()),
   MARKETPLACE_MAX_TARGETS: z
     .string()
-    .default("30")
+    .default("18")
+    .transform((value) => Number.parseInt(value, 10)),
+  MARKETPLACE_TARGET_OFFSET: z
+    .string()
+    .default("0")
     .transform((value) => Number.parseInt(value, 10)),
   SCRAPE_HEADLESS: z
     .string()
