@@ -1,15 +1,20 @@
 import "dotenv/config";
 import { z } from "zod";
 
+const emptyToUndefined = (value) => (value === "" ? undefined : value);
+
 const schema = z.object({
-  FIREBASE_PROJECT_ID: z.string().optional(),
-  FIREBASE_CLIENT_EMAIL: z.string().optional(),
-  FIREBASE_PRIVATE_KEY: z.string().optional(),
-  CLOUDINARY_CLOUD_NAME: z.string().optional(),
-  CLOUDINARY_API_KEY: z.string().optional(),
-  CLOUDINARY_API_SECRET: z.string().optional(),
-  MARKETPLACE_CITY_URL: z.string().url().default("https://www.facebook.com/marketplace/"),
-  MARKETPLACE_URLS: z.string().optional(),
+  FIREBASE_PROJECT_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  FIREBASE_CLIENT_EMAIL: z.preprocess(emptyToUndefined, z.string().optional()),
+  FIREBASE_PRIVATE_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  CLOUDINARY_CLOUD_NAME: z.preprocess(emptyToUndefined, z.string().optional()),
+  CLOUDINARY_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  CLOUDINARY_API_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
+  MARKETPLACE_CITY_URL: z.preprocess(
+    emptyToUndefined,
+    z.string().url().default("https://www.facebook.com/marketplace/106085869430478/iphones/")
+  ),
+  MARKETPLACE_URLS: z.preprocess(emptyToUndefined, z.string().optional()),
   MARKETPLACE_MAX_TARGETS: z
     .string()
     .default("30")
@@ -35,7 +40,7 @@ const schema = z.object({
     .string()
     .default("30")
     .transform((value) => Number.parseInt(value, 10)),
-  FCM_TOKENS: z.string().optional()
+  FCM_TOKENS: z.preprocess(emptyToUndefined, z.string().optional())
 });
 
 export const env = schema.parse(process.env);
