@@ -25,6 +25,25 @@ const marketplaceCategorySlugs = [
   { name: "Cell phones", slug: "cell-phones" }
 ];
 
+const marketplaceSearchQueries = [
+  "iphone",
+  "iphone 11",
+  "iphone 12",
+  "iphone 13",
+  "iphone 14",
+  "iphone 15",
+  "iphone 16",
+  "iphone 17",
+  "samsung",
+  "redmi",
+  "vivo",
+  "oppo",
+  "realme",
+  "oneplus",
+  "nothing phone",
+  "pixel"
+];
+
 function getMarketplaceTargets() {
   if (env.MARKETPLACE_URLS) {
     return env.MARKETPLACE_URLS.split(";")
@@ -38,18 +57,44 @@ function getMarketplaceTargets() {
   }
 
   const generatedTargets = [];
+  const locations = uniqueLocations(nepalLocations);
 
-  for (const location of uniqueLocations(nepalLocations)) {
-    for (const category of marketplaceCategorySlugs) {
-      generatedTargets.push({
-        name: `${location.name} ${category.name}`,
-        locationName: location.name,
-        marketplaceUrl: `https://www.facebook.com/marketplace/${location.id}/${category.slug}/`
-      });
+  if (env.MARKETPLACE_TARGET_MODE === "search" || env.MARKETPLACE_TARGET_MODE === "hybrid") {
+    for (const query of marketplaceSearchQueries) {
+      for (const location of locations) {
+        generatedTargets.push({
+          name: `${location.name} search ${query}`,
+          locationName: location.name,
+          searchQuery: query,
+          marketplaceUrl: buildSearchUrl(location.id, query)
+        });
+      }
+    }
+  }
+
+  if (env.MARKETPLACE_TARGET_MODE === "category" || env.MARKETPLACE_TARGET_MODE === "hybrid") {
+    for (const location of locations) {
+      for (const category of marketplaceCategorySlugs) {
+        generatedTargets.push({
+          name: `${location.name} ${category.name}`,
+          locationName: location.name,
+          marketplaceUrl: `https://www.facebook.com/marketplace/${location.id}/${category.slug}/`
+        });
+      }
     }
   }
 
   return generatedTargets.slice(env.MARKETPLACE_TARGET_OFFSET, env.MARKETPLACE_TARGET_OFFSET + env.MARKETPLACE_MAX_TARGETS);
+}
+
+function buildSearchUrl(locationId, query) {
+  const params = new URLSearchParams({
+    query,
+    exact: "false",
+    sortBy: "creation_time_descend"
+  });
+
+  return `https://www.facebook.com/marketplace/${locationId}/search/?${params.toString()}`;
 }
 
 function uniqueLocations(locations) {

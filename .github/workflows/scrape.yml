@@ -2,7 +2,7 @@ name: Scrape Marketplace
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       debug:
@@ -45,6 +45,7 @@ jobs:
       RETENTION_DAYS: "30"
       MARKETPLACE_MAX_TARGETS: "6"
       MARKETPLACE_TARGET_OFFSET: ${{ matrix.target_offset }}
+      MARKETPLACE_TARGET_MODE: "hybrid"
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

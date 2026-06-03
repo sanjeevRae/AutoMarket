@@ -23,6 +23,7 @@ const schema = z.object({
     .string()
     .default("0")
     .transform((value) => Number.parseInt(value, 10)),
+  MARKETPLACE_TARGET_MODE: z.enum(["search", "category", "hybrid"]).default("hybrid"),
   SCRAPE_HEADLESS: z
     .string()
     .default("true")
