@@ -23,8 +23,13 @@ Suggested fields:
 - `source`
 - `isActive`
 - `createdAt`
+- `postedAt`
+- `postedAtLabel`
+- `discoveredAt`
 - `updatedAt`
 - `expiresAt`
+
+`createdAt` is the Facebook listed/post date when Facebook exposes it to the scraper. If Facebook does not show a listed date in the feed card, `createdAt` falls back to the time AutoMarket discovered the listing. `discoveredAt` always means the time AutoMarket saved it.
 
 ### `devices`
 

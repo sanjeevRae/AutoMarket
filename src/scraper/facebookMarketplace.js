@@ -57,6 +57,8 @@ function normalizeRawItem(raw) {
   const priceLine = lines.find((line) => /[$रूRs]/i.test(line));
   const title = lines.find((line) => line !== priceLine) || lines[0] || "";
   const location = lines.at(-1) || "";
+  const postedAtLabel = findPostedAtLabel(lines);
+  const postedAt = parsePostedAt(postedAtLabel);
   const facebookItemId = extractMarketplaceItemId(raw.href);
   const sourceId = facebookItemId
     ? `facebook_${facebookItemId}`
@@ -69,6 +71,8 @@ function normalizeRawItem(raw) {
     price: parsePrice(priceLine),
     priceLabel: priceLine || "",
     location,
+    postedAt,
+    postedAtLabel,
     marketplaceUrl: facebookItemId ? `https://www.facebook.com/marketplace/item/${facebookItemId}/` : raw.href,
     originalImageUrl: raw.image
   };
@@ -82,4 +86,39 @@ function extractMarketplaceItemId(url) {
 function parsePrice(value = "") {
   const match = value.replace(/,/g, "").match(/(\d+(\.\d+)?)/);
   return match ? Number(match[1]) : null;
+}
+
+function findPostedAtLabel(lines) {
+  return (
+    lines.find((line) =>
+      /(^|\b)(just now|today|yesterday|minute|hour|day|week|month|year|listed|ago)(\b|$)/i.test(line)
+    ) || null
+  );
+}
+
+function parsePostedAt(label) {
+  if (!label) return null;
+
+  const normalized = label.toLowerCase();
+  const now = Date.now();
+
+  if (/\bjust now\b/.test(normalized)) return new Date(now).toISOString();
+  if (/\btoday\b/.test(normalized)) return new Date(now).toISOString();
+  if (/\byesterday\b/.test(normalized)) return new Date(now - 24 * 60 * 60 * 1000).toISOString();
+
+  const amountMatch = normalized.match(/(\d+|a|an)\s+(minute|hour|day|week|month|year)s?\s+ago/);
+  if (!amountMatch) return null;
+
+  const amount = amountMatch[1] === "a" || amountMatch[1] === "an" ? 1 : Number(amountMatch[1]);
+  const unit = amountMatch[2];
+  const multipliers = {
+    minute: 60 * 1000,
+    hour: 60 * 60 * 1000,
+    day: 24 * 60 * 60 * 1000,
+    week: 7 * 24 * 60 * 60 * 1000,
+    month: 30 * 24 * 60 * 60 * 1000,
+    year: 365 * 24 * 60 * 60 * 1000
+  };
+
+  return new Date(now - amount * multipliers[unit]).toISOString();
 }

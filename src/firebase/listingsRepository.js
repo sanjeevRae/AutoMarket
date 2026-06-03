@@ -10,10 +10,15 @@ export async function listingExists(sourceId) {
 
 export async function saveListing(listing) {
   const docRef = getDb().collection(COLLECTION).doc(listing.sourceId);
+  const createdAt = listing.postedAt
+    ? admin.firestore.Timestamp.fromDate(new Date(listing.postedAt))
+    : admin.firestore.FieldValue.serverTimestamp();
+
   await docRef.set(
     {
       ...listing,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt,
+      discoveredAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     },
     { merge: true }
