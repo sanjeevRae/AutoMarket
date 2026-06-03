@@ -28,9 +28,18 @@ export async function scrapeFacebookListingDetails(listingUrl) {
     return {
       postedAt,
       postedAtLabel,
+      detailSampleLines: getUsefulSampleLines(lines),
       detailScrapedAt: new Date().toISOString()
     };
   } finally {
     await browser.close();
   }
+}
+
+function getUsefulSampleLines(lines) {
+  const useful = lines.filter((line) =>
+    /\b(listed|ago|today|yesterday|minute|hour|day|week|month|year|marketplace|log in|login|sign up)\b/i.test(line)
+  );
+
+  return (useful.length > 0 ? useful : lines).slice(0, 20);
 }

@@ -22,6 +22,7 @@ jobs:
       CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
       SCRAPE_HEADLESS: "true"
       BACKFILL_LISTED_TIME_LIMIT: ${{ inputs.limit }}
+      BACKFILL_LISTED_TIME_REPORT: artifacts/listed-time-backfill.json
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -32,3 +33,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run validate
       - run: npm run backfill:listed-time
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: listed-time-backfill-report
+          path: artifacts/listed-time-backfill.json

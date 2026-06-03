@@ -91,6 +91,10 @@ function parsePrice(value = "") {
 export function findPostedAtLabel(lines) {
   return (
     lines.find((line) =>
+      /\blisted\b/i.test(line) &&
+      /\b(just now|today|yesterday|minute|hour|day|week|month|year|ago|on)\b/i.test(line)
+    ) ||
+    lines.find((line) =>
       /(^|\b)(just now|today|yesterday|minute|hour|day|week|month|year|listed|ago)(\b|$)/i.test(line)
     ) || null
   );
@@ -106,7 +110,7 @@ export function parsePostedAt(label) {
   if (/\btoday\b/.test(normalized)) return new Date(now).toISOString();
   if (/\byesterday\b/.test(normalized)) return new Date(now - 24 * 60 * 60 * 1000).toISOString();
 
-  const amountMatch = normalized.match(/(\d+|a|an)\s+(minute|hour|day|week|month|year)s?\s+ago/);
+  const amountMatch = normalized.match(/(?:about|over|approximately)?\s*(\d+|a|an)\s+(minute|hour|day|week|month|year)s?\s+ago/);
   if (!amountMatch) return null;
 
   const amount = amountMatch[1] === "a" || amountMatch[1] === "an" ? 1 : Number(amountMatch[1]);
