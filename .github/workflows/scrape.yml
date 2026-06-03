@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      debug:
+        description: "Print raw listing cards returned by Facebook"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 concurrency:
   group: automarket-scrape
@@ -29,9 +38,10 @@ jobs:
       MARKETPLACE_URLS: ${{ secrets.MARKETPLACE_URLS }}
       FCM_TOKENS: ${{ secrets.FCM_TOKENS }}
       SCRAPE_HEADLESS: "true"
-      SCRAPE_MAX_ITEMS: "40"
+      SCRAPE_MAX_ITEMS: "80"
+      SCRAPE_SCROLL_STEPS: "4"
       SCRAPE_DRY_RUN: "false"
-      SCRAPE_DEBUG: "false"
+      SCRAPE_DEBUG: ${{ github.event.inputs.debug || 'false' }}
       RETENTION_DAYS: "30"
       MARKETPLACE_MAX_TARGETS: "6"
       MARKETPLACE_TARGET_OFFSET: ${{ matrix.target_offset }}

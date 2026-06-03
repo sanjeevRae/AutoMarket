@@ -29,7 +29,11 @@ const schema = z.object({
     .transform((value) => value === "true"),
   SCRAPE_MAX_ITEMS: z
     .string()
-    .default("40")
+    .default("80")
+    .transform((value) => Number.parseInt(value, 10)),
+  SCRAPE_SCROLL_STEPS: z
+    .string()
+    .default("4")
     .transform((value) => Number.parseInt(value, 10)),
   SCRAPE_DRY_RUN: z
     .string()

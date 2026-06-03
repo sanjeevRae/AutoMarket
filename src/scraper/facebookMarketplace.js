@@ -12,20 +12,39 @@ export async function scrapeFacebookMarketplace({ cityUrl, maxItems = env.SCRAPE
   try {
     await page.goto(cityUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(5000);
+    await loadMoreListings(page);
 
     const items = await page.evaluate((limit) => {
       const anchors = [...document.querySelectorAll('a[href*="/marketplace/item/"]')];
-      return anchors.slice(0, limit).map((anchor) => {
-        const text = anchor.innerText || "";
-        const href = anchor.href;
-        const image = anchor.querySelector("img")?.src || null;
-        return { text, href, image };
-      });
+      const seen = new Set();
+
+      return anchors
+        .filter((anchor) => {
+          const match = anchor.href.match(/marketplace\/item\/(\d+)/);
+          const key = match ? match[1] : anchor.href;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .slice(0, limit)
+        .map((anchor) => {
+          const text = anchor.innerText || "";
+          const href = anchor.href;
+          const image = anchor.querySelector("img")?.src || null;
+          return { text, href, image };
+        });
     }, maxItems);
 
     return items.map(normalizeRawItem).filter((item) => item.title && item.marketplaceUrl);
   } finally {
     await browser.close();
+  }
+}
+
+async function loadMoreListings(page) {
+  for (let index = 0; index < env.SCRAPE_SCROLL_STEPS; index += 1) {
+    await page.mouse.wheel(0, 1800);
+    await page.waitForTimeout(1500);
   }
 }
 

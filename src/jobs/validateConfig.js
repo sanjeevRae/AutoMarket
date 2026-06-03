@@ -8,6 +8,7 @@ const publicConfig = {
   marketplaceTargetOffset: env.MARKETPLACE_TARGET_OFFSET,
   scrapeHeadless: env.SCRAPE_HEADLESS,
   scrapeMaxItems: env.SCRAPE_MAX_ITEMS,
+  scrapeScrollSteps: env.SCRAPE_SCROLL_STEPS,
   scrapeDryRun: env.SCRAPE_DRY_RUN,
   scrapeSource: env.SCRAPE_SOURCE,
   scrapeDebug: env.SCRAPE_DEBUG,
