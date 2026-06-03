@@ -42,6 +42,7 @@ jobs:
       SCRAPE_SCROLL_STEPS: "4"
       SCRAPE_DRY_RUN: "false"
       SCRAPE_DEBUG: ${{ github.event.inputs.debug || 'false' }}
+      SCRAPE_DETAIL_DATES: "true"
       RETENTION_DAYS: "30"
       MARKETPLACE_MAX_TARGETS: "6"
       MARKETPLACE_TARGET_OFFSET: ${{ matrix.target_offset }}

@@ -3,6 +3,7 @@ import { filters } from "../config/filters.js";
 import { listingExists, saveListing } from "../firebase/listingsRepository.js";
 import { uploadListingImage } from "../media/cloudinary.js";
 import { sendListingNotification } from "../notifications/fcm.js";
+import { scrapeFacebookListingDetails } from "../scraper/facebookListingDetails.js";
 import { scrapeFacebookMarketplace } from "../scraper/facebookMarketplace.js";
 import { scrapeMockMarketplace } from "../scraper/mockMarketplace.js";
 import { matchListing } from "../services/listingMatcher.js";
@@ -80,9 +81,10 @@ async function main() {
       try {
         if (await listingExists(listing.sourceId)) continue;
 
-        const media = await uploadListingImage(listing.originalImageUrl, listing.sourceId);
+        const listingWithDetails = await enrichListingDetails(listing);
+        const media = await uploadListingImage(listingWithDetails.originalImageUrl, listingWithDetails.sourceId);
         const finalListing = {
-          ...listing,
+          ...listingWithDetails,
           imageUrl: media.imageUrl,
           cloudinaryPublicId: media.publicId
         };
@@ -103,3 +105,24 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+async function enrichListingDetails(listing) {
+  if (!env.SCRAPE_DETAIL_DATES || env.SCRAPE_SOURCE !== "facebook" || listing.postedAt) {
+    return listing;
+  }
+
+  try {
+    const details = await scrapeFacebookListingDetails(listing.marketplaceUrl);
+    if (!details.postedAt) return listing;
+
+    return {
+      ...listing,
+      postedAt: details.postedAt,
+      postedAtLabel: details.postedAtLabel,
+      detailScrapedAt: details.detailScrapedAt
+    };
+  } catch (error) {
+    console.warn(`[details] failed ${listing.sourceId}: ${error.message}`);
+    return listing;
+  }
+}

@@ -13,6 +13,7 @@ const publicConfig = {
   scrapeDryRun: env.SCRAPE_DRY_RUN,
   scrapeSource: env.SCRAPE_SOURCE,
   scrapeDebug: env.SCRAPE_DEBUG,
+  scrapeDetailDates: env.SCRAPE_DETAIL_DATES,
   retentionDays: env.RETENTION_DAYS,
   hasFirebaseClientEmail: Boolean(env.FIREBASE_CLIENT_EMAIL),
   hasFirebasePrivateKey: Boolean(env.FIREBASE_PRIVATE_KEY),

@@ -45,6 +45,10 @@ const schema = z.object({
     .string()
     .default("false")
     .transform((value) => value === "true"),
+  SCRAPE_DETAIL_DATES: z
+    .string()
+    .default("true")
+    .transform((value) => value === "true"),
   RETENTION_DAYS: z
     .string()
     .default("30")

@@ -88,7 +88,7 @@ function parsePrice(value = "") {
   return match ? Number(match[1]) : null;
 }
 
-function findPostedAtLabel(lines) {
+export function findPostedAtLabel(lines) {
   return (
     lines.find((line) =>
       /(^|\b)(just now|today|yesterday|minute|hour|day|week|month|year|listed|ago)(\b|$)/i.test(line)
@@ -96,7 +96,7 @@ function findPostedAtLabel(lines) {
   );
 }
 
-function parsePostedAt(label) {
+export function parsePostedAt(label) {
   if (!label) return null;
 
   const normalized = label.toLowerCase();
