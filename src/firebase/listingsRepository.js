@@ -68,6 +68,34 @@ export async function backfillListedTime(limit = 500) {
   return { checked: snapshot.size, updated, skipped };
 }
 
+export async function getListingsMissingListedTime(limit = 25) {
+  const snapshot = await getDb().collection(COLLECTION).limit(limit).get();
+
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ref: doc.ref, ...doc.data() }))
+    .filter((listing) => !listing.Listed_time && listing.marketplaceUrl);
+}
+
+export async function updateListingListedTime(id, { postedAt, postedAtLabel, detailScrapedAt }) {
+  const listedTime = toFirestoreTimestamp(postedAt);
+
+  await getDb()
+    .collection(COLLECTION)
+    .doc(id)
+    .set(
+      {
+        Listed_time: listedTime,
+        postedAt: postedAt || null,
+        postedAtLabel: postedAtLabel || null,
+        detailScrapedAt: detailScrapedAt || new Date().toISOString(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+
+  return Boolean(listedTime);
+}
+
 function toFirestoreTimestamp(value) {
   if (!value) return null;
 
