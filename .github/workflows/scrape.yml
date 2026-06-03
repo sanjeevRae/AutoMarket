@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target_offset: [0, 6, 12, 18, 24, 30, 36, 42]
+        target_offset: [0, 8, 16, 24, 32, 40, 48, 56]
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -44,7 +44,7 @@ jobs:
       SCRAPE_DEBUG: ${{ github.event.inputs.debug || 'false' }}
       SCRAPE_DETAIL_DATES: "true"
       RETENTION_DAYS: "30"
-      MARKETPLACE_MAX_TARGETS: "6"
+      MARKETPLACE_MAX_TARGETS: "8"
       MARKETPLACE_TARGET_OFFSET: ${{ matrix.target_offset }}
       MARKETPLACE_TARGET_MODE: "hybrid"
     steps:

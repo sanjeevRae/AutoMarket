@@ -41,6 +41,22 @@ FCM tokens from Flutter.
 - `enabled`
 - `createdAt`
 
+### `scrapeRuns`
+
+Backend run summaries written by GitHub Actions.
+
+- `rawFetched`
+- `matched`
+- `saved`
+- `skippedDuplicates`
+- `targetFailures`
+- `listingFailures`
+- `marketplaceTargetOffset`
+- `githubRunId`
+- `createdAt`
+
+Use this collection to verify whether automation is actually finding new listing IDs. If `matched` is high but `saved` is `0`, Facebook returned items already stored in `listings`.
+
 ## Flutter Search Queries
 
 For a simple free search, query by exact token:

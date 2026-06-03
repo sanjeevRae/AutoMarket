@@ -1,6 +1,7 @@
 import { env, requireProductionSecrets } from "../config/env.js";
 import { filters } from "../config/filters.js";
 import { listingExists, saveListing } from "../firebase/listingsRepository.js";
+import { saveScrapeRun } from "../firebase/scrapeRunsRepository.js";
 import { uploadListingImage } from "../media/cloudinary.js";
 import { sendListingNotification } from "../notifications/fcm.js";
 import { scrapeFacebookListingDetails } from "../scraper/facebookListingDetails.js";
@@ -15,6 +16,11 @@ async function main() {
 
   let saved = 0;
   let matched = 0;
+  let rawFetched = 0;
+  let skippedDuplicates = 0;
+  let targetFailures = 0;
+  let listingFailures = 0;
+  const runStartedAt = new Date().toISOString();
 
   const seenInRun = new Set();
 
@@ -34,10 +40,12 @@ async function main() {
               maxItems: env.SCRAPE_MAX_ITEMS
             });
     } catch (error) {
+      targetFailures += 1;
       console.warn(`[scrape] target failed: ${target.name}: ${error.message}`);
       continue;
     }
 
+    rawFetched += rawListings.length;
     console.log(`Fetched ${rawListings.length} raw listings from ${env.SCRAPE_SOURCE}.`);
 
     if (env.SCRAPE_DEBUG) {
@@ -79,7 +87,10 @@ async function main() {
       }
 
       try {
-        if (await listingExists(listing.sourceId)) continue;
+        if (await listingExists(listing.sourceId)) {
+          skippedDuplicates += 1;
+          continue;
+        }
 
         const listingWithDetails = await enrichListingDetails(listing);
         const media = await uploadListingImage(listingWithDetails.originalImageUrl, listingWithDetails.sourceId);
@@ -93,12 +104,38 @@ async function main() {
         await sendListingNotification(finalListing);
         saved += 1;
       } catch (error) {
+        listingFailures += 1;
         console.warn(`[listing] failed ${listing.sourceId}: ${error.message}`);
       }
     }
   }
 
-  console.log(`Scrape complete. matched=${matched} saved=${saved} dryRun=${env.SCRAPE_DRY_RUN}`);
+  const summary = {
+    dryRun: env.SCRAPE_DRY_RUN,
+    source: env.SCRAPE_SOURCE,
+    targetMode: env.MARKETPLACE_TARGET_MODE,
+    targetsConfigured: targets.length,
+    rawFetched,
+    matched,
+    saved,
+    skippedDuplicates,
+    targetFailures,
+    listingFailures,
+    startedAt: runStartedAt,
+    finishedAt: new Date().toISOString()
+  };
+
+  console.log(
+    `Scrape complete. rawFetched=${rawFetched} matched=${matched} saved=${saved} duplicates=${skippedDuplicates} targetFailures=${targetFailures} listingFailures=${listingFailures} dryRun=${env.SCRAPE_DRY_RUN}`
+  );
+
+  if (!env.SCRAPE_DRY_RUN) {
+    try {
+      await saveScrapeRun(summary);
+    } catch (error) {
+      console.warn(`[scrapeRuns] failed to save run summary: ${error.message}`);
+    }
+  }
 }
 
 main().catch((error) => {

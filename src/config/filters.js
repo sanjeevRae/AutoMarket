@@ -27,13 +27,6 @@ const marketplaceCategorySlugs = [
 
 const marketplaceSearchQueries = [
   "iphone",
-  "iphone 11",
-  "iphone 12",
-  "iphone 13",
-  "iphone 14",
-  "iphone 15",
-  "iphone 16",
-  "iphone 17",
   "samsung",
   "redmi",
   "vivo",
@@ -41,6 +34,13 @@ const marketplaceSearchQueries = [
   "realme",
   "oneplus",
   "nothing phone",
+  "iphone 13",
+  "iphone 14",
+  "iphone 15",
+  "iphone 16",
+  "iphone 17",
+  "iphone 11",
+  "iphone 12",
   "pixel"
 ];
 
@@ -60,8 +60,8 @@ function getMarketplaceTargets() {
   const locations = uniqueLocations(nepalLocations);
 
   if (env.MARKETPLACE_TARGET_MODE === "search" || env.MARKETPLACE_TARGET_MODE === "hybrid") {
-    for (const query of marketplaceSearchQueries) {
-      for (const location of locations) {
+    for (const location of locations) {
+      for (const query of marketplaceSearchQueries) {
         generatedTargets.push({
           name: `${location.name} search ${query}`,
           locationName: location.name,
