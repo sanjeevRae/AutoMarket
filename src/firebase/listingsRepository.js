@@ -10,13 +10,13 @@ export async function listingExists(sourceId) {
 
 export async function saveListing(listing) {
   const docRef = getDb().collection(COLLECTION).doc(listing.sourceId);
-  const createdAt = listing.postedAt
-    ? admin.firestore.Timestamp.fromDate(new Date(listing.postedAt))
-    : admin.firestore.FieldValue.serverTimestamp();
+  const listedTime = toFirestoreTimestamp(listing.postedAt);
+  const createdAt = listedTime || admin.firestore.FieldValue.serverTimestamp();
 
   await docRef.set(
     {
       ...listing,
+      Listed_time: listedTime,
       createdAt,
       discoveredAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -39,4 +39,40 @@ export async function getExpiredListings(limit = 100) {
 
 export async function deleteListing(id) {
   await getDb().collection(COLLECTION).doc(id).delete();
+}
+
+export async function backfillListedTime(limit = 500) {
+  const snapshot = await getDb().collection(COLLECTION).limit(limit).get();
+  let updated = 0;
+  let skipped = 0;
+
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const listedTime = toFirestoreTimestamp(data.postedAt);
+
+    if (data.Listed_time !== undefined) {
+      skipped += 1;
+      continue;
+    }
+
+    await doc.ref.set(
+      {
+        Listed_time: listedTime,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+    updated += 1;
+  }
+
+  return { checked: snapshot.size, updated, skipped };
+}
+
+function toFirestoreTimestamp(value) {
+  if (!value) return null;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return admin.firestore.Timestamp.fromDate(date);
 }

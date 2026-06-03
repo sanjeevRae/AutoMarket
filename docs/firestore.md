@@ -23,13 +23,14 @@ Suggested fields:
 - `source`
 - `isActive`
 - `createdAt`
+- `Listed_time`
 - `postedAt`
 - `postedAtLabel`
 - `discoveredAt`
 - `updatedAt`
 - `expiresAt`
 
-`createdAt` is the Facebook listed/post date when Facebook exposes it to the scraper. If Facebook does not show a listed date in the feed card, `createdAt` falls back to the time AutoMarket discovered the listing. `discoveredAt` always means the time AutoMarket saved it.
+`Listed_time` is the parsed Facebook Marketplace listed/post date as a Firestore timestamp. If Facebook does not expose a listed date, this field is `null`. `createdAt` currently mirrors the listed/post date when available and falls back to the time AutoMarket discovered the listing. `discoveredAt` always means the time AutoMarket saved it.
 
 ### `devices`
 
