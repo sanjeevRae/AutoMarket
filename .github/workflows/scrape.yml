@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target_offset: [0, 6, 12]
+        target_offset: [0, 6, 12, 18, 24, 30, 36, 42]
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}

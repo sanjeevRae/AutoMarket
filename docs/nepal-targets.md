@@ -12,6 +12,7 @@ The repo currently generates target URLs for:
 - Bhaktapur
 - Banepa
 - Nepaltar
+- additional collected Nepal Marketplace location IDs from the project owner
 
 Across categories:
 
@@ -19,7 +20,7 @@ Across categories:
 - mobile phones
 - cell phones
 
-`MARKETPLACE_MAX_TARGETS` controls how many generated URLs are scanned per run. Keep this reasonable for GitHub Actions.
+`MARKETPLACE_MAX_TARGETS` controls how many generated URLs are scanned per run. The GitHub workflow scans the generated list in batches of 6 targets.
 
 ## Adding Pokhara, Dharan, Butwal, Etc.
 

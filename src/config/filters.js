@@ -6,7 +6,17 @@ const nepalLocations = [
   { name: "Jawalakhel", id: "103530669681415" },
   { name: "Bhaktapur", id: "107541015941651" },
   { name: "Banepa", id: "107542912605474" },
-  { name: "Nepaltar", id: "105551836140585" }
+  { name: "Nepaltar", id: "105551836140585" },
+  { name: "Nepal location 105881199440434", id: "105881199440434" },
+  { name: "Nepal location 112951728719008", id: "112951728719008" },
+  { name: "Nepal location 100242253350992", id: "100242253350992" },
+  { name: "Nepal location 107660619264051", id: "107660619264051" },
+  { name: "Nepal location 105676396131853", id: "105676396131853" },
+  { name: "Nepal location 112869382061213", id: "112869382061213" },
+  { name: "Nepal location 107463885943322", id: "107463885943322" },
+  { name: "Nepal location 104035086300631", id: "104035086300631" },
+  { name: "Nepal location 109264042433998", id: "109264042433998" },
+  { name: "Nepal location 108540865837567", id: "108540865837567" }
 ];
 
 const marketplaceCategorySlugs = [
@@ -29,7 +39,7 @@ function getMarketplaceTargets() {
 
   const generatedTargets = [];
 
-  for (const location of nepalLocations) {
+  for (const location of uniqueLocations(nepalLocations)) {
     for (const category of marketplaceCategorySlugs) {
       generatedTargets.push({
         name: `${location.name} ${category.name}`,
@@ -40,6 +50,15 @@ function getMarketplaceTargets() {
   }
 
   return generatedTargets.slice(env.MARKETPLACE_TARGET_OFFSET, env.MARKETPLACE_TARGET_OFFSET + env.MARKETPLACE_MAX_TARGETS);
+}
+
+function uniqueLocations(locations) {
+  const seen = new Set();
+  return locations.filter((location) => {
+    if (seen.has(location.id)) return false;
+    seen.add(location.id);
+    return true;
+  });
 }
 
 export const filters = {
