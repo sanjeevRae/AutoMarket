@@ -32,5 +32,8 @@ Add:
 
 - `MARKETPLACE_CITY_URL`
 - `FCM_TOKENS`
+- `FACEBOOK_COOKIES_JSON` optional, needed when Facebook shows login pages instead of Marketplace details
 
 `FCM_TOKENS` is only for early testing. Later, Flutter should write tokens into the `devices` collection.
+
+`FACEBOOK_COOKIES_JSON` must be a JSON array of cookies for `.facebook.com`. Do not commit it to `.env` or source control. Refresh it if the backfill report starts showing only `Log in`, `Sign Up`, and `Log In`.

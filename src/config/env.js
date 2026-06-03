@@ -53,7 +53,8 @@ const schema = z.object({
     .string()
     .default("30")
     .transform((value) => Number.parseInt(value, 10)),
-  FCM_TOKENS: z.preprocess(emptyToUndefined, z.string().optional())
+  FCM_TOKENS: z.preprocess(emptyToUndefined, z.string().optional()),
+  FACEBOOK_COOKIES_JSON: z.preprocess(emptyToUndefined, z.string().optional())
 });
 
 export const env = schema.parse(process.env);
