@@ -8,7 +8,7 @@ on:
       debug:
         description: "Print raw listing cards returned by Facebook"
         required: false
-        default: "false"
+        default: "true"
         type: choice
         options:
           - "false"
