@@ -59,31 +59,28 @@ export async function sendListingNotification(listing) {
   const title = `New ${listing.categoryLabel || "deal"}: ${listing.title}`;
   const body = [listing.priceLabel, listing.location].filter(Boolean).join(" | ");
   const imageUrl = listing.imageUrl || listing.originalImageUrl || undefined;
+  const data = {
+    listingId: String(listing.sourceId || ""),
+    category: String(listing.category || ""),
+    url: String(listing.marketplaceUrl || ""),
+    title: String(title || ""),
+    body: String(body || ""),
+    imageUrl: String(imageUrl || "")
+  };
 
   const response = await getMessaging().sendEachForMulticast({
     tokens: targets.map((target) => target.token),
     notification: {
       title,
-      body,
-      ...(imageUrl ? { imageUrl } : {})
+      body
     },
-    data: {
-      listingId: listing.sourceId,
-      category: listing.category,
-      url: listing.marketplaceUrl,
-      title,
-      body,
-      imageUrl: imageUrl || ""
-    },
+    data,
     android: {
       priority: "high",
       notification: {
         channelId: ANDROID_CHANNEL_ID,
         sound: IOS_SOUND,
-        priority: "high",
-        defaultSound: true,
-        clickAction: "FLUTTER_NOTIFICATION_CLICK",
-        ...(imageUrl ? { imageUrl } : {})
+        clickAction: "FLUTTER_NOTIFICATION_CLICK"
       }
     },
     apns: {
@@ -98,29 +95,10 @@ export async function sendListingNotification(listing) {
             body
           },
           sound: IOS_SOUND,
-          badge: 1,
-          contentAvailable: true,
-          mutableContent: true
-        },
-        ...(imageUrl
-          ? {
-              fcm_options: {
-                image: imageUrl
-              }
-            }
-          : {})
-      },
-      fcmOptions: imageUrl
-        ? {
-            imageUrl
-          }
-        : undefined
-    },
-    fcmOptions: imageUrl
-      ? {
-          imageUrl
+          badge: 1
         }
-      : undefined
+      }
+    }
     });
 
   const invalidTargets = targets.filter((target, index) => {
