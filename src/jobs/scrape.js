@@ -20,6 +20,8 @@ async function main() {
   let skippedDuplicates = 0;
   let targetFailures = 0;
   let listingFailures = 0;
+  let notificationSuccess = 0;
+  let notificationFailure = 0;
   const runStartedAt = new Date().toISOString();
 
   const seenInRun = new Set();
@@ -101,7 +103,9 @@ async function main() {
         };
 
         await saveListing(finalListing);
-        await sendListingNotification(finalListing);
+        const notificationResult = await sendListingNotification(finalListing);
+        notificationSuccess += notificationResult.successCount || 0;
+        notificationFailure += notificationResult.failureCount || 0;
         saved += 1;
       } catch (error) {
         listingFailures += 1;
@@ -121,12 +125,14 @@ async function main() {
     skippedDuplicates,
     targetFailures,
     listingFailures,
+    notificationSuccess,
+    notificationFailure,
     startedAt: runStartedAt,
     finishedAt: new Date().toISOString()
   };
 
   console.log(
-    `Scrape complete. rawFetched=${rawFetched} matched=${matched} saved=${saved} duplicates=${skippedDuplicates} targetFailures=${targetFailures} listingFailures=${listingFailures} dryRun=${env.SCRAPE_DRY_RUN}`
+    `Scrape complete. rawFetched=${rawFetched} matched=${matched} saved=${saved} duplicates=${skippedDuplicates} targetFailures=${targetFailures} listingFailures=${listingFailures} notificationSuccess=${notificationSuccess} notificationFailure=${notificationFailure} dryRun=${env.SCRAPE_DRY_RUN}`
   );
 
   if (!env.SCRAPE_DRY_RUN) {

@@ -41,6 +41,24 @@ FCM tokens from Flutter.
 - `platform`
 - `enabled`
 - `createdAt`
+- `updatedAt`
+
+Use the FCM token as the document ID, or use a stable per-install ID and overwrite the same document whenever Firebase refreshes the token. The backend sends notifications to docs where `enabled == true`.
+
+Expected Flutter write shape:
+
+```json
+{
+  "token": "FCM_DEVICE_TOKEN",
+  "userName": "Sanjeev",
+  "platform": "android",
+  "enabled": true,
+  "createdAt": "server timestamp",
+  "updatedAt": "server timestamp"
+}
+```
+
+When the token refreshes, Flutter should update the existing device doc or disable the old token doc and write the new token. Do not leave multiple old enabled tokens for the same phone.
 
 ### `scrapeRuns`
 
@@ -52,6 +70,8 @@ Backend run summaries written by GitHub Actions.
 - `skippedDuplicates`
 - `targetFailures`
 - `listingFailures`
+- `notificationSuccess`
+- `notificationFailure`
 - `marketplaceTargetOffset`
 - `githubRunId`
 - `createdAt`

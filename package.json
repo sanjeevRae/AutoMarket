@@ -9,6 +9,7 @@
     "scrape:mock": "node src/jobs/scrapeMock.js",
     "cleanup": "node src/jobs/cleanup.js",
     "backfill:listed-time": "node src/jobs/backfillListedTime.js",
+    "check:devices": "node src/jobs/checkDevices.js",
     "validate": "node src/jobs/validateConfig.js",
     "format": "prettier --write ."
   },
