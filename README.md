@@ -20,6 +20,8 @@ The default scraper watches Nepal Marketplace locations/categories for mobile de
 
 When `SCRAPE_DRY_RUN=false`, every new matched listing is saved into Firestore and an FCM notification is sent to registered device tokens.
 
+The backend now sends OS-visible FCM notification payloads for Android and iOS, so notifications can appear even when the Flutter app is backgrounded or fully closed, assuming the mobile app and Firebase/APNs setup are correct.
+
 ## Important Security Step
 
 Rotate any Cloudinary secret that has been pasted into chat or committed anywhere. Store secrets only in `.env` locally and GitHub Actions Secrets in production.
@@ -82,10 +84,23 @@ Flutter app can store FCM device tokens here later:
   token: "...",
   userName: "Mina",
   platform: "android",
+  apnsToken: "...", // optional, useful for iOS debugging
   enabled: true,
   createdAt: Timestamp
 }
 ```
+
+## Closed-App Push Notifications
+
+For terminated-app notifications, backend delivery must include a visible notification payload, not just `data`.
+
+This backend sends:
+
+- top-level FCM `notification.title` and `notification.body`
+- Android high-priority notification config on channel `marketplace_listing_alerts`
+- iOS APNs alert payload with sound and alert headers
+
+If notifications still only appear inside the app, the remaining problem is usually mobile or Firebase configuration rather than scraper logic.
 
 ## Retention
 
