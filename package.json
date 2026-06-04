@@ -7,6 +7,7 @@
   "scripts": {
     "scrape": "node src/jobs/scrape.js",
     "scrape:mock": "node src/jobs/scrapeMock.js",
+    "notify:test": "node src/jobs/testNotification.js",
     "cleanup": "node src/jobs/cleanup.js",
     "backfill:listed-time": "node src/jobs/backfillListedTime.js",
     "check:devices": "node src/jobs/checkDevices.js",
