@@ -69,8 +69,16 @@ jobs:
       - run: npm run validate
       - run: |
           echo "Running scrape with offset=${MARKETPLACE_TARGET_OFFSET} maxTargets=${MARKETPLACE_MAX_TARGETS} mode=${MARKETPLACE_TARGET_MODE}"
-          echo "Custom MARKETPLACE_URLS set: $([ -n \"${MARKETPLACE_URLS}\" ] && echo yes || echo no)"
-          echo "Facebook cookies configured: $([ -n \"${FACEBOOK_COOKIES_JSON}\" ] && echo yes || echo no)"
+          if [ -n "${MARKETPLACE_URLS:-}" ]; then
+            echo "Custom MARKETPLACE_URLS set: yes"
+          else
+            echo "Custom MARKETPLACE_URLS set: no"
+          fi
+          if [ -n "${FACEBOOK_COOKIES_JSON:-}" ]; then
+            echo "Facebook cookies configured: yes"
+          else
+            echo "Facebook cookies configured: no"
+          fi
       - run: npm run scrape
       - uses: actions/upload-artifact@v4
         if: always()
