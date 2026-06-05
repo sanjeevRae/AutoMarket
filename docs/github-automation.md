@@ -8,13 +8,18 @@ AutoMarket is prepared to run without manual scraping.
 
 `.github/workflows/scrape.yml`
 
-- runs every 15 minutes,
+- runs every 5 minutes,
 - installs Node dependencies and Playwright Chromium,
 - validates environment variables,
 - scans Nepal mobile Marketplace targets,
 - saves new matching listings to Firestore,
 - uploads images to Cloudinary,
 - sends FCM notifications.
+
+The built-in target list now includes these search URLs by default:
+
+- `https://www.facebook.com/marketplace/106085869430478/search/?sortBy=creation_time_descend&query=phone&exact=false`
+- `https://www.facebook.com/marketplace/107995085894650/search/?sortBy=creation_time_descend&query=phone&exact=false`
 
 ### Cleanup Old Listings
 
@@ -45,6 +50,8 @@ Optional:
 
 Leave `MARKETPLACE_URLS` empty to use the built-in Nepal mobile target list.
 
+If you set `MARKETPLACE_URLS`, it overrides the built-in target list. Use semicolon-separated full URLs.
+
 ## What Happens When A New Phone Is Found
 
 1. GitHub Actions runs the scraper.
@@ -56,6 +63,6 @@ Leave `MARKETPLACE_URLS` empty to use the built-in Nepal mobile target list.
 
 ## Important Notes
 
-GitHub scheduled workflows are free-friendly, but they are not exact real-time timers. A 15-minute schedule can sometimes run late depending on GitHub load.
+GitHub scheduled workflows are free-friendly, but they are not exact real-time timers. A 5-minute schedule can still run late depending on GitHub load.
 
 Facebook may change page markup or block automation. If the workflow starts finding zero listings, run the workflow manually and check logs.

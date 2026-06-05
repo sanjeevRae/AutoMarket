@@ -13,6 +13,15 @@ on:
         options:
           - "false"
           - "true"
+      target_mode:
+        description: "Marketplace target mode"
+        required: false
+        default: "hybrid"
+        type: choice
+        options:
+          - "search"
+          - "category"
+          - "hybrid"
 
 concurrency:
   group: automarket-scrape
@@ -47,7 +56,7 @@ jobs:
       RETENTION_DAYS: "30"
       MARKETPLACE_MAX_TARGETS: "8"
       MARKETPLACE_TARGET_OFFSET: ${{ matrix.target_offset }}
-      MARKETPLACE_TARGET_MODE: "hybrid"
+      MARKETPLACE_TARGET_MODE: ${{ github.event.inputs.target_mode || 'hybrid' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -57,4 +66,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run validate
+      - run: |
+          echo "Running scrape with offset=${MARKETPLACE_TARGET_OFFSET} maxTargets=${MARKETPLACE_MAX_TARGETS} mode=${MARKETPLACE_TARGET_MODE}"
+          echo "Custom MARKETPLACE_URLS set: $([ -n \"${MARKETPLACE_URLS}\" ] && echo yes || echo no)"
       - run: npm run scrape

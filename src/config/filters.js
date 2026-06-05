@@ -1,7 +1,21 @@
 import { env } from "./env.js";
 
+const defaultMarketplaceUrls = [
+  {
+    name: "Kathmandu search phone",
+    marketplaceUrl:
+      "https://www.facebook.com/marketplace/106085869430478/search/?sortBy=creation_time_descend&query=phone&exact=false"
+  },
+  {
+    name: "Nepal location 107995085894650 search phone",
+    marketplaceUrl:
+      "https://www.facebook.com/marketplace/107995085894650/search/?sortBy=creation_time_descend&query=phone&exact=false"
+  }
+];
+
 const nepalLocations = [
   { name: "Kathmandu", id: "106085869430478" },
+  { name: "Nepal location 107995085894650", id: "107995085894650" },
   { name: "Lalitpur", id: "205246402885806" },
   { name: "Jawalakhel", id: "103530669681415" },
   { name: "Bhaktapur", id: "107541015941651" },
@@ -56,18 +70,23 @@ function getMarketplaceTargets() {
       .slice(env.MARKETPLACE_TARGET_OFFSET, env.MARKETPLACE_TARGET_OFFSET + env.MARKETPLACE_MAX_TARGETS);
   }
 
-  const generatedTargets = [];
+  const generatedTargets = [...defaultMarketplaceUrls];
+  const existingUrls = new Set(generatedTargets.map((target) => target.marketplaceUrl));
   const locations = uniqueLocations(nepalLocations);
 
   if (env.MARKETPLACE_TARGET_MODE === "search" || env.MARKETPLACE_TARGET_MODE === "hybrid") {
     for (const location of locations) {
       for (const query of marketplaceSearchQueries) {
+        const marketplaceUrl = buildSearchUrl(location.id, query);
+        if (existingUrls.has(marketplaceUrl)) continue;
+
         generatedTargets.push({
           name: `${location.name} search ${query}`,
           locationName: location.name,
           searchQuery: query,
-          marketplaceUrl: buildSearchUrl(location.id, query)
+          marketplaceUrl
         });
+        existingUrls.add(marketplaceUrl);
       }
     }
   }
