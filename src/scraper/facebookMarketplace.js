@@ -8,8 +8,15 @@ export async function scrapeFacebookMarketplace({ cityUrl, maxItems = env.SCRAPE
 
   try {
     await page.goto(cityUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(5000);
+    await dismissMarketplacePopups(page);
     await loadMoreListings(page);
+
+    const diagnostics = await collectPageDiagnostics(page);
+    if (env.SCRAPE_DEBUG || diagnostics.anchorCount === 0 || diagnostics.looksBlocked) {
+      console.log("[marketplace] diagnostics", diagnostics);
+    }
 
     const items = await page.evaluate((limit) => {
       const anchors = [...document.querySelectorAll('a[href*="/marketplace/item/"]')];
@@ -32,6 +39,10 @@ export async function scrapeFacebookMarketplace({ cityUrl, maxItems = env.SCRAPE
         });
     }, maxItems);
 
+    if (items.length === 0) {
+      console.warn(`[marketplace] no item anchors found for ${cityUrl}`);
+    }
+
     return items.map(normalizeRawItem).filter((item) => item.title && item.marketplaceUrl);
   } finally {
     await browser.close();
@@ -43,6 +54,45 @@ async function loadMoreListings(page) {
     await page.mouse.wheel(0, 1800);
     await page.waitForTimeout(1500);
   }
+}
+
+async function dismissMarketplacePopups(page) {
+  const buttonTexts = ["Not now", "Close", "Dismiss", "Allow all cookies", "Accept all"];
+
+  for (const text of buttonTexts) {
+    const button = page.getByRole("button", { name: text }).first();
+    if ((await button.count().catch(() => 0)) === 0) continue;
+
+    await button.click({ timeout: 1500 }).catch(() => {});
+    await page.waitForTimeout(500);
+  }
+}
+
+async function collectPageDiagnostics(page) {
+  const title = await page.title().catch(() => "");
+  const currentUrl = page.url();
+  const summary = await page.evaluate(() => {
+    const bodyText = document.body?.innerText || "";
+    const normalizedBody = bodyText.toLowerCase();
+    const anchors = [...document.querySelectorAll('a[href*="/marketplace/item/"]')];
+
+    return {
+      anchorCount: anchors.length,
+      bodySnippet: bodyText.slice(0, 500),
+      looksBlocked:
+        normalizedBody.includes("log in") ||
+        normalizedBody.includes("login") ||
+        normalizedBody.includes("sign up") ||
+        normalizedBody.includes("see more on facebook") ||
+        normalizedBody.includes("please log in")
+    };
+  });
+
+  return {
+    title,
+    url: currentUrl,
+    ...summary
+  };
 }
 
 function normalizeRawItem(raw) {
