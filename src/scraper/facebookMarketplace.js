@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { env } from "../config/env.js";
 import { createFacebookPage } from "./facebookBrowser.js";
 
@@ -16,6 +18,12 @@ export async function scrapeFacebookMarketplace({ cityUrl, maxItems = env.SCRAPE
     const diagnostics = await collectPageDiagnostics(page);
     if (env.SCRAPE_DEBUG || diagnostics.anchorCount === 0 || diagnostics.looksBlocked) {
       console.log("[marketplace] diagnostics", diagnostics);
+    }
+
+    if (diagnostics.anchorCount === 0 || diagnostics.looksBlocked) {
+      await writeMarketplaceArtifacts(page, diagnostics).catch((error) => {
+        console.warn(`[marketplace] failed to write debug artifacts: ${error.message}`);
+      });
     }
 
     const items = await page.evaluate((limit) => {
@@ -93,6 +101,31 @@ async function collectPageDiagnostics(page) {
     url: currentUrl,
     ...summary
   };
+}
+
+async function writeMarketplaceArtifacts(page, diagnostics) {
+  const outputDir = process.env.SCRAPE_ARTIFACTS_DIR || "artifacts/marketplace";
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const safeName = createSafeFileName(diagnostics.url || diagnostics.title || "marketplace");
+  const basePath = path.join(outputDir, `${stamp}-${safeName}`);
+
+  await fs.mkdir(outputDir, { recursive: true });
+  await page.screenshot({ path: `${basePath}.png`, fullPage: true }).catch(() => {});
+
+  const html = await page.content().catch(() => "");
+  await fs.writeFile(`${basePath}.html`, html, "utf8");
+  await fs.writeFile(`${basePath}.json`, JSON.stringify(diagnostics, null, 2), "utf8");
+
+  console.warn(`[marketplace] debug artifacts written: ${basePath}.{png,html,json}`);
+}
+
+function createSafeFileName(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
 }
 
 function normalizeRawItem(raw) {

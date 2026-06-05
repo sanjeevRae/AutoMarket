@@ -47,6 +47,7 @@ jobs:
       MARKETPLACE_URLS: ${{ vars.MARKETPLACE_URLS || '' }}
       FCM_TOKENS: ${{ secrets.FCM_TOKENS || '' }}
       FACEBOOK_COOKIES_JSON: ${{ secrets.FACEBOOK_COOKIES_JSON || '' }}
+      SCRAPE_ARTIFACTS_DIR: artifacts/marketplace
       SCRAPE_HEADLESS: "true"
       SCRAPE_MAX_ITEMS: "80"
       SCRAPE_SCROLL_STEPS: "8"
@@ -71,3 +72,9 @@ jobs:
           echo "Custom MARKETPLACE_URLS set: $([ -n \"${MARKETPLACE_URLS}\" ] && echo yes || echo no)"
           echo "Facebook cookies configured: $([ -n \"${FACEBOOK_COOKIES_JSON}\" ] && echo yes || echo no)"
       - run: npm run scrape
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: marketplace-debug-${{ matrix.target_offset }}-${{ github.run_attempt }}
+          path: artifacts/marketplace
+          if-no-files-found: ignore
